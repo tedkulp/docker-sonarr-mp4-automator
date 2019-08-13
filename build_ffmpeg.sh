@@ -2,6 +2,10 @@
 
 cd /tmp
 
+mkdir build
+
+cd build
+
 # Update (again for some reason)
 apt-get update
 
@@ -22,7 +26,12 @@ patch debian/rules < /rules.patch
 # Do the build (this could take a LONG time)
 debuild -us -uc -i -I
 
-cd /tmp
+cd ..
 
 # Install the debs (except extra and docs...  we don't have the depgs for them anyway)
 find *.deb | grep -v "\-extra" | grep -v "\-doc" | xargs dpkg -i
+
+cd ..
+
+# Cleanup -- the imagine is huge if we don't
+rm -fr build
