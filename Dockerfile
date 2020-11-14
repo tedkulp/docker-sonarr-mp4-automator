@@ -1,4 +1,7 @@
-FROM linuxserver/sonarr
+FROM jrottenberg/ffmpeg:4.2-ubuntu1804 as ffmpeg
+FROM linuxserver/sonarr:latest
+
+COPY --from=ffmpeg /usr/local/ /usr/local/
 
 # Add sources
 RUN sed -i -- 's/#deb-src/deb-src/g' /etc/apt/sources.list && sed -i -- 's/# deb-src/deb-src/g' /etc/apt/sources.list
@@ -20,16 +23,8 @@ RUN \
   build-essential
 
 RUN \
-  pip install requests && \
-  pip install requests[security] && \
-  pip install requests-cache && \
-  pip install babelfish && \
-  pip install 'guessit<2' && \
-  pip install 'subliminal<2' && \
-  pip install stevedore==1.19.1 && \
-  pip install python-dateutil && \
-  pip install qtfaststart && \
   git clone git://github.com/mdhiggins/sickbeard_mp4_automator.git /sickbeard_mp4_automator/ && \
+  pip install -r /sickbeard_mp4_automator/setup/requirements.txt && \
   touch /sickbeard_mp4_automator/info.log && \
   chmod a+rwx -R /sickbeard_mp4_automator && \
   ln -s /downloads /data && \
@@ -38,9 +33,5 @@ RUN \
   /tmp/* \
   /var/lib/apt/lists/* \
   /var/tmp/*
-
-COPY rules.patch /rules.patch
-COPY build_ffmpeg.sh /build_ffmpeg.sh
-RUN /bin/sh build_ffmpeg.sh
 
 VOLUME /config_mp4_automator
